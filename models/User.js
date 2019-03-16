@@ -6,4 +6,4 @@ const UserSchema = new mongoose.Schema({
   picture: String
 });
 
-module.exports = mongoose.PromiseProvider("User", UserSchema);
+module.exports = mongoose.model("User", UserSchema);
