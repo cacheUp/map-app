@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { GraphQLClient } from "graphql-request";
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
@@ -9,12 +10,14 @@ import ClearIcon from "@material-ui/icons/Clear";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
 import Context from "../../context";
 import axios from "axios";
+import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
 
 const CreatePin = ({ classes }) => {
-  const { dispatch } = useContext(Context);
+  const { state, dispatch } = useContext(Context);
   const [title, setTitle] = useState("");
   const [image, setImage] = useState("");
   const [content, setContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleImageUpload = async () => {
     const data = new FormData();
@@ -28,17 +31,37 @@ const CreatePin = ({ classes }) => {
     return res.data.url;
   };
 
+  const handleSubmit = async event => {
+    try {
+      event.preventDefault();
+      setSubmitting(true);
+      const idToken = window.gapi.auth2
+        .getAuthInstance()
+        .currentUser.get()
+        .getAuthResponse().id_token;
+      const client = new GraphQLClient("http://localhost:4000/graphql", {
+        headers: { authorization: idToken }
+      });
+      const url = await handleImageUpload();
+      const { latitude, longitude } = state.draft;
+      const variables = { title, image: url, content, latitude, longitude };
+      const { createPin } = await client.request(
+        CREATE_PIN_MUTATION,
+        variables
+      );
+      console.log("pin created", { createPin });
+      handleDeleteDraft();
+    } catch (err) {
+      setSubmitting(false);
+      console.error("error creating pin", err);
+    }
+  };
+
   const handleDeleteDraft = () => {
     setTitle("");
     setImage("");
     setContent("");
     dispatch({ type: "DELETE_DRAFT" });
-  };
-
-  const handleSubmit = async event => {
-    event.preventDefault();
-    const url = await handleImageUpload();
-    console.log({ title, image, url, content });
   };
 
   return (
@@ -105,7 +128,7 @@ const CreatePin = ({ classes }) => {
           className={classes.button}
           variant="contained"
           color="secondary"
-          disabled={!title.trim() || !content.trim() || !image}
+          disabled={!title.trim() || !content.trim() || !image || submitting}
           onClick={handleSubmit}
         >
           <SaveIcon className={classes.leftIcon} />
