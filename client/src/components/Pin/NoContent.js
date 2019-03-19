@@ -6,10 +6,9 @@ import Typography from "@material-ui/core/Typography";
 const NoContent = ({ classes }) => (
   <div className={classes.root}>
     <ExploreIcon className={classes.icon} />
-
     <Typography
       noWrap
-      conponent="h2"
+      component="h2"
       variant="h6"
       align="center"
       color="textPrimary"

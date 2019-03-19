@@ -2,21 +2,22 @@ import React, { useContext } from "react";
 import { GraphQLClient } from "graphql-request";
 import { GoogleLogin } from "react-google-login";
 import { withStyles } from "@material-ui/core/styles";
-import Context from "../../context";
 import Typography from "@material-ui/core/Typography";
+
+import Context from "../../context";
 import { ME_QUERY } from "../../graphql/queries";
 import { BASE_URL } from "../../client";
+
 const Login = ({ classes }) => {
   const { dispatch } = useContext(Context);
+
   const onSuccess = async googleUser => {
     try {
       const idToken = googleUser.getAuthResponse().id_token;
       const client = new GraphQLClient(BASE_URL, {
         headers: { authorization: idToken }
       });
-
       const { me } = await client.request(ME_QUERY);
-
       dispatch({ type: "LOGIN_USER", payload: me });
       dispatch({ type: "IS_LOGGED_IN", payload: googleUser.isSignedIn() });
     } catch (err) {
@@ -36,17 +37,17 @@ const Login = ({ classes }) => {
         variant="h3"
         gutterBottom
         noWrap
-        style={{ color: "rgb(66,133,244)" }}
+        style={{ color: "rgb(66, 133, 244)" }}
       >
-        Welcome!
+        Welcome
       </Typography>
       <GoogleLogin
         clientId="895850204586-sju6t2c25jpm90ksv8u3tv83bvocead2.apps.googleusercontent.com"
-        onFailure={onFailure}
         onSuccess={onSuccess}
+        onFailure={onFailure}
         isSignedIn={true}
-        theme="dark"
         buttonText="Login with Google"
+        theme="dark"
       />
     </div>
   );

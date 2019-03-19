@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import axios from "axios";
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
@@ -7,12 +8,14 @@ import AddAPhotoIcon from "@material-ui/icons/AddAPhotoTwoTone";
 import LandscapeIcon from "@material-ui/icons/LandscapeOutlined";
 import ClearIcon from "@material-ui/icons/Clear";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
+
 import Context from "../../context";
-import axios from "axios";
-import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
 import { useClient } from "../../client";
+import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
 
 const CreatePin = ({ classes }) => {
+  const mobileSize = useMediaQuery("(max-width: 650px)");
   const client = useClient();
   const { state, dispatch } = useContext(Context);
   const [title, setTitle] = useState("");
@@ -20,13 +23,20 @@ const CreatePin = ({ classes }) => {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const handleDeleteDraft = () => {
+    setTitle("");
+    setImage("");
+    setContent("");
+    dispatch({ type: "DELETE_DRAFT" });
+  };
+
   const handleImageUpload = async () => {
     const data = new FormData();
     data.append("file", image);
     data.append("upload_preset", "geopins");
-    data.append("cloud_name", "cloud-9");
+    data.append("cloud_name", "reedbargercodes");
     const res = await axios.post(
-      "https://api.cloudinary.com/v1_1/cloud-9/image/upload",
+      "https://api.cloudinary.com/v1_1/reedbargercodes/image/upload",
       data
     );
     return res.data.url;
@@ -36,28 +46,15 @@ const CreatePin = ({ classes }) => {
     try {
       event.preventDefault();
       setSubmitting(true);
-
       const url = await handleImageUpload();
       const { latitude, longitude } = state.draft;
       const variables = { title, image: url, content, latitude, longitude };
-      const { createPin } = await client.request(
-        CREATE_PIN_MUTATION,
-        variables
-      );
-      console.log("pin created", { createPin });
-      dispatch({ type: "CREATE_PIN", payload: createPin });
+      await client.request(CREATE_PIN_MUTATION, variables);
       handleDeleteDraft();
     } catch (err) {
       setSubmitting(false);
-      console.error("error creating pin", err);
+      console.error("Error creating pin", err);
     }
-  };
-
-  const handleDeleteDraft = () => {
-    setTitle("");
-    setImage("");
-    setContent("");
-    dispatch({ type: "DELETE_DRAFT" });
   };
 
   return (
@@ -68,9 +65,8 @@ const CreatePin = ({ classes }) => {
         variant="h4"
         color="secondary"
       >
-        <LandscapeIcon className={classes.iconLarge} /> Pin a Location
+        <LandscapeIcon className={classes.iconLarge} /> Pin Location
       </Typography>
-
       <div>
         <TextField
           name="title"
@@ -87,10 +83,10 @@ const CreatePin = ({ classes }) => {
         />
         <label htmlFor="image">
           <Button
+            style={{ color: image && "green" }}
             component="span"
             size="small"
             className={classes.button}
-            style={{ color: image && "green" }}
           >
             <AddAPhotoIcon />
           </Button>
@@ -101,7 +97,7 @@ const CreatePin = ({ classes }) => {
           name="content"
           label="Content"
           multiline
-          rows="6"
+          rows={mobileSize ? "3" : "6"}
           margin="normal"
           fullWidth
           variant="outlined"
@@ -110,15 +106,14 @@ const CreatePin = ({ classes }) => {
       </div>
       <div>
         <Button
+          onClick={handleDeleteDraft}
           className={classes.button}
           variant="contained"
           color="primary"
-          onClick={handleDeleteDraft}
         >
           <ClearIcon className={classes.leftIcon} />
           Discard
         </Button>
-
         <Button
           type="submit"
           className={classes.button}
@@ -127,8 +122,8 @@ const CreatePin = ({ classes }) => {
           disabled={!title.trim() || !content.trim() || !image || submitting}
           onClick={handleSubmit}
         >
-          <SaveIcon className={classes.leftIcon} />
           Submit
+          <SaveIcon className={classes.rightIcon} />
         </Button>
       </div>
     </form>

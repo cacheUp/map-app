@@ -3,10 +3,11 @@ import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import FaceIcon from "@material-ui/icons/Face";
-import Context from "../../context";
 import format from "date-fns/format";
+
 import CreateComment from "../Comment/CreateComment";
 import Comments from "../Comment/Comments";
+import Context from "../../context";
 
 const PinContent = ({ classes }) => {
   const { state } = useContext(Context);
@@ -17,14 +18,13 @@ const PinContent = ({ classes }) => {
         {title}
       </Typography>
       <Typography
+        className={classes.text}
         component="h3"
         variant="h6"
         color="inherit"
-        className={classes.text}
         gutterBottom
       >
-        <FaceIcon className={classes.icon} />
-        {author.name}
+        <FaceIcon className={classes.icon} /> {author.name}
       </Typography>
       <Typography
         className={classes.text}
@@ -38,6 +38,8 @@ const PinContent = ({ classes }) => {
       <Typography variant="subtitle1" gutterBottom>
         {content}
       </Typography>
+
+      {/* Pin Comments */}
       <CreateComment />
       <Comments comments={comments} />
     </div>
