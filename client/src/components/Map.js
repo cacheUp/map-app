@@ -10,6 +10,7 @@ import Blog from "./Blog";
 import { useClient } from "../client";
 import { GET_PINS_QUERY } from "../graphql/queries";
 import differenceInMinutes from "date-fns/difference_in_minutes";
+import { DELETE_PIN_MUTATION } from "../graphql/mutations";
 
 const INITIAL_VIEWPORT = {
   latitude: 37.7577,
@@ -66,6 +67,13 @@ const Map = ({ classes }) => {
   const handleSelectPin = pin => {
     setPopup(pin);
     dispatch({ type: "SET_PIN", payload: pin });
+  };
+
+  const handleDeletePin = async pin => {
+    const variables = { pinId: pin._id };
+    const { deletePin } = await client.request(DELETE_PIN_MUTATION, variables);
+    dispatch({ type: "DELETE_PIN", payload: deletePin });
+    setPopup(null);
   };
 
   const isAuthUser = () => state.currentUser._id === popup.author._id;
@@ -144,7 +152,7 @@ const Map = ({ classes }) => {
                 {popup.latitude.toFixed(6)}, {popup.longitude.toFixed(6)}
               </Typography>
               {isAuthUser() && (
-                <Button>
+                <Button onClick={() => handleDeletePin(popup)}>
                   <DeleteIcon className={classes.deleteIcon} />
                 </Button>
               )}
