@@ -7,6 +7,7 @@ module.exports = gql`
     email: String
     picture: String
   }
+
   type Pin {
     _id: ID
     createdAt: String
@@ -23,8 +24,6 @@ module.exports = gql`
     text: String
     createdAt: String
     author: User
-    latitude: Float
-    longitude: Float
   }
 
   input CreatePinInput {
@@ -39,11 +38,13 @@ module.exports = gql`
     me: User
     getPins: [Pin!]
   }
+
   type Mutation {
     createPin(input: CreatePinInput!): Pin
     deletePin(pinId: ID!): Pin
     createComment(pinId: ID!, text: String!): Pin
   }
+
   type Subscription {
     pinAdded: Pin
     pinDeleted: Pin

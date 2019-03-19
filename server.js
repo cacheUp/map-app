@@ -1,15 +1,14 @@
 const { ApolloServer } = require("apollo-server");
-const resolvers = require("./resolvers");
-const typeDefs = require("./typeDefs");
 const mongoose = require("mongoose");
-const { findOrCreateUser } = require("./controllers/userController");
 require("dotenv").config();
 
+const typeDefs = require("./typeDefs");
+const resolvers = require("./resolvers");
+const { findOrCreateUser } = require("./controllers/userController");
+
 mongoose
-  .connect(`${process.env.DB_CONFIG}`, {
-    useNewUrlParser: true
-  })
-  .then(() => console.log("db connected"))
+  .connect(process.env.DB_CONFIG, { useNewUrlParser: true })
+  .then(() => console.log("DB connected!"))
   .catch(err => console.error(err));
 
 const server = new ApolloServer({
@@ -24,12 +23,12 @@ const server = new ApolloServer({
         currentUser = await findOrCreateUser(authToken);
       }
     } catch (err) {
-      console.err(`Unable to authenticate user with token ${authToken}`);
+      console.error(`Unable to authenticate user with token ${authToken}`);
     }
     return { currentUser };
   }
 });
 
-server.listen().then(({ url }) => {
-  console.log(`server is listening on ${url}`);
+server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+  console.log(`Server listening on ${url}`);
 });
