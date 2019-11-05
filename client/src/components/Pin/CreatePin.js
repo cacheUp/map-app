@@ -9,7 +9,7 @@ import LandscapeIcon from "@material-ui/icons/LandscapeOutlined";
 import ClearIcon from "@material-ui/icons/Clear";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
-
+import { cloud_url } from "./helper";
 import Context from "../../context";
 import { useClient } from "../../client";
 import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
@@ -31,14 +31,13 @@ const CreatePin = ({ classes }) => {
   };
 
   const handleImageUpload = async () => {
+    console.log(`${process.env.CLOUD_URL}`);
     const data = new FormData();
     data.append("file", image);
     data.append("upload_preset", "geopins");
-    data.append("cloud_name", "reedbargercodes");
-    const res = await axios.post(
-      "https://api.cloudinary.com/v1_1/reedbargercodes/image/upload",
-      data
-    );
+    data.append("cloud_name", "cloud-9");
+    const res = await axios.post(cloud_url, data);
+    console.log(res);
     return res.data.url;
   };
 
