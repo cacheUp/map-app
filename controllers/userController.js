@@ -7,7 +7,7 @@ exports.findOrCreateUser = async token => {
   console.log("GOOOGLE TOKEN \n\n", token);
   //verify auth token
   const googleUser = await verifyAuthToken(token);
-  console.log("\n\n\n GOOGLE USER:\n", googleUser);
+  setTimeout(() => console.log(googleUser), 1000);
   //check if user exists
   const user = await checkIfUserExists(googleUser.email);
   //if user exists, return them, otherwise create new user in db
