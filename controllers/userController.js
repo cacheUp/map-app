@@ -6,6 +6,7 @@ const client = new OAuth2Client(process.env.OAUTH_CLIENT_ID);
 exports.findOrCreateUser = async token => {
   //verify auth token
   const googleUser = await verifyAuthToken(token);
+  console.log("\n\n\n GOOGLE USER:\n", googleUser);
   //check if user exists
   const user = await checkIfUserExists(googleUser.email);
   //if user exists, return them, otherwise create new user in db
