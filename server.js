@@ -17,7 +17,6 @@ const server = new ApolloServer({
   introspection: true,
   playground: true,
   context: async ({ req }) => {
-    console.log(req.headers.authorization);
     let authToken = null;
     let currentUser = null;
     try {

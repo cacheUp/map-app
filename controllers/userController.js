@@ -4,6 +4,7 @@ const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.OAUTH_CLIENT_ID);
 
 exports.findOrCreateUser = async token => {
+  console.log("GOOOGLE TOKEN \n\n", token);
   //verify auth token
   const googleUser = await verifyAuthToken(token);
   console.log("\n\n\n GOOGLE USER:\n", googleUser);
